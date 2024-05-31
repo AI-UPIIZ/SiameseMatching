@@ -3,6 +3,7 @@ import pandas as pd
 from loguru import logger
 from tqdm import tqdm
 import numpy as np
+from PIL import Image
 from consts.paths import DatasetPaths
 from consts.consts import ImageCategories, DatasetSplit
 
@@ -18,14 +19,19 @@ def generate(dataset_path: str, metadata_file_path: str):
     '''
     logger.info("Generating CSV file with metadata")
     
-    data = [
-        {
-            "person_id": "person_" + filename.split("_")[0],
-            "image_name": filename,
-            "category": ImageCategories.SELFIE if "selfie" in filename else ImageCategories.ID
-        }
-        for filename in tqdm(os.listdir(dataset_path), desc="Processing images")
-    ]
+    data = []
+    for filename in tqdm(os.listdir(dataset_path), desc="Processing images"):
+        if filename.endswith(('.png', '.jpg', '.jpeg')):  # Ensure only image files are processed
+            file_path = os.path.join(dataset_path, filename)
+            with Image.open(file_path) as img:
+                width, height = img.size
+            data.append({
+                "person_id": "person_" + filename.split("_")[0],
+                "image_name": filename,
+                "category": ImageCategories.SELFIE if "selfie" in filename else ImageCategories.ID,
+                "width": width,
+                "height": height
+            })
     
     df_metadata = pd.DataFrame(data)
     
@@ -33,10 +39,10 @@ def generate(dataset_path: str, metadata_file_path: str):
     df_metadata = df_metadata.drop_duplicates(subset=['person_id', 'category'], keep='first')
     
     # Pivot the table to have selfie and idcard in separate columns
-    df_metadata_pivot = df_metadata.pivot(index='person_id', columns='category', values='image_name').reset_index()
+    df_metadata_pivot = df_metadata.pivot(index='person_id', columns='category', values=['image_name', 'width', 'height']).reset_index()
     
     # Flatten the columns after pivoting
-    df_metadata_pivot.columns = ['person_id', 'selfie', 'idcard']
+    df_metadata_pivot.columns = ['person_id', 'selfie_image_name', 'idcard_image_name', 'selfie_width', 'idcard_width', 'selfie_height', 'idcard_height']
     
     # Generate the train/test split
     df_metadata_split = train_test_split(df_metadata_pivot)
