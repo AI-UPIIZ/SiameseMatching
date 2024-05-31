@@ -32,3 +32,57 @@ source ./.venv-siamese-matching/bin/activate
 make install
 ```
 
+
+## Structure of the Siamese Neural Network (First experiment):
+1. Input Images: Two images (one selfie and one ID card) are fed into the network.
+2. CNN (ResNet18): Both images pass through the same pre-trained ResNet18 CNN to extract features. The weights of this CNN are shared between the two branches to ensure consistent feature extraction.
+3. Feature Embedding: The output of the CNN for each image is a feature vector (embedding) representing the image in a lower-dimensional space.
+4. oncatenation: The two feature embeddings are concatenated to form a single combined vector.
+5. Fully Connected Layers: The concatenated vector is passed through multiple fully connected layers to learn the relationship between the two embeddings.
+6. Similarity Score: The final output layer produces a similarity score indicating whether the two images belong to the same person.
+
+### Diagram
+              Input Image 1 (Selfie)                Input Image 2 (ID Card)
+                   +-------------+                       +-------------+
+                   |   Selfie    |                       |   ID Card   |
+                   +-------------+                       +-------------+
+                         |                                     |
+                         v                                     v
+               +---------------------+               +---------------------+
+               |     CNN (ResNet18)  |               |     CNN (ResNet18)  |
+               |  (Shared Weights)   |               |  (Shared Weights)   |
+               +---------------------+               +---------------------+
+                         |                                     |
+                         v                                     v
+               +---------------------+               +---------------------+
+               |   Feature Embedding |               |   Feature Embedding |
+               +---------------------+               +---------------------+
+                         |                                     |
+                         +-----------------+-------------------+
+                                           |
+                                           v
+                               +-------------------------+
+                               |     Concatenation       |
+                               +-------------------------+
+                                           |
+                                           v
+                               +-------------------------+
+                               | Fully Connected Layer 1 |
+                               +-------------------------+
+                                           |
+                                           v
+                               +-------------------------+
+                               | Fully Connected Layer 2 |
+                               +-------------------------+
+                                           |
+                                           v
+                               +-------------------------+
+                               | Fully Connected Layer 3 |
+                               +-------------------------+
+                                           |
+                                           v
+                               +-------------------------+
+                               |    Similarity Score     |
+                               +-------------------------+
+
+
