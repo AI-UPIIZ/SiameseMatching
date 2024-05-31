@@ -1,0 +1,43 @@
+[project]
+name = "SiameseMatching"
+version = "1.0.0"
+description = "Siamese Neural Network aimed at identifying whether two given images represent the same person"
+authors = [{ name = "Erika Sánchez Femat", email = "erikasafe@gmail.com" }]
+requires-python = ">=3.9"
+readme = "README.md"
+
+dependencies = [
+    "loguru==0.7.2",
+    "numpy==1.26.4",
+    "pandas==2.2.2",
+    "tqdm==4.66.4"
+]
+
+[project.optional-dependencies]
+tests = [
+    "pytest==7.2.2"
+]
+lint = [
+    "ruff==0.4.3"
+]
+dev = []
+
+[build-system]
+requires = ["uv>=0.1.14", "setuptools>=69.1.1", "wheel>=0.42.0"]
+build-backend = "setuptools.build_meta"
+
+testpaths = [
+    "tests",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["SiameseMatching*"]
+
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.format]
+quote-style = "single"
+indent-style = "tab"
+docstring-code-format = true
