@@ -95,8 +95,10 @@ def main(config):
         selfie_images_combined = torch.cat([x[0] for x in X_train], dim=0)
         idcard_images_combined = torch.cat([x[1] for x in X_train], dim=0)
         y_train = torch.cat(y_train, dim=0)
-
         X_train_combined = torch.cat([selfie_images_combined, idcard_images_combined], dim=1)
+
+
+        logger.info("Hyperparameter Tuning...")
 
         model_hyperparameters = NeuralNetClassifier(
             module=model,
@@ -116,9 +118,8 @@ def main(config):
             n_jobs=-1,
         )
 
-        logger.info(f'Hyperparameter tuning...')
 
-        # Perform the grid search
+        logger.info("Grid Search...")
         grid_search.fit(X_train_combined, y_train)
 
         # Get the best hyperparameters and the best model
@@ -139,6 +140,7 @@ def main(config):
             lr=learning_rate,
         )
 
+        logger.info("Starting to train...")
         training = Training(
             input_pipeline=input_pipeline,
             model=best_model,
