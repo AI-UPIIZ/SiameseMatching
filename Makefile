@@ -2,7 +2,7 @@ SHELL=/bin/bash
 PATH := .venv/bin:$(PATH)
 EXTRA?=dev
 export TEST?=./tests
-VENV_ACTIVATE := . .venv/bin/activate
+VENV_ACTIVATE := source .venv/bin/activate
 
 install:
 	@set -e; \
@@ -17,13 +17,16 @@ install:
 lint:
 	@set -e; \
 	if [ ! -d .venv ]; then \
-		python3 -m venv .venv; \
+		python -m venv .venv; \
 	fi; \
 	$(VENV_ACTIVATE);  \
-	python3 -m ruff format .; \
-    python3 -m ruff check . --fix; \
+	python -m ruff format .; \
+    python -m ruff check . --fix;
 
-
-.PYTHON: siamese
 siamese:
-	python experiments/siamese_experiment.py +architecture=siamese.yaml
+	@set -e; \
+	if [ ! -d .venv ]; then \
+		python -m venv .venv; \
+	fi; \
+	$(VENV_ACTIVATE); \
+	python experiments/siamese_experiment.py +architecture=siamese.yaml;
