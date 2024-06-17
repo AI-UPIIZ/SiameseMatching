@@ -29,13 +29,12 @@ class SiameseArchitectures(EnumConstant):
 
 
 class Metadata(EnumConstant):
-	PERSONID = 'person_id'
+	LABEL = 'label'
 	IMG_NAME = 'img_name'
 	CATEGORY = 'category'
 	WIDTH = 'width'
 	HEIGHT = 'height'
 	SUBSET = 'subset'
-	SPLIT = 'split'
 	SELFIE_IMG_NAME = 'selfie_img_name'
 	SELFIE_WIDTH = 'selfie_width'
 	SELFIE_HEIGHT = 'selfie_height'

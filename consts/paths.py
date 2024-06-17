@@ -7,6 +7,7 @@ INTER_DATA = os.path.join(DATA_PATH, 'inter')
 PROCESSED_DATA = os.path.join(DATA_PATH, 'processed')
 CONFIG_PATH = os.path.join(PROJECT_PATH, 'config')
 ARTIFACTS_PATH = os.path.join(PROJECT_PATH, 'artifacts')
+OUTPUT_PATH = os.path.join(PROJECT_PATH, 'output')
 
 
 class DatasetPaths:

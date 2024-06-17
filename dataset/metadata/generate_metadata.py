@@ -29,7 +29,7 @@ def generate(dataset_path: str, metadata_file_path: str):
 				width, height = img.size
 			data.append(
 				{
-					Metadata.PERSONID: 'person_' + filename.split('_')[0],
+					Metadata.LABEL: filename.split('_')[0],
 					Metadata.IMG_NAME: filename,
 					Metadata.CATEGORY: ImageCategories.SELFIE
 					if 'selfie' in filename
@@ -41,15 +41,15 @@ def generate(dataset_path: str, metadata_file_path: str):
 
 	df_metadata = pd.DataFrame(data)
 	df_metadata = df_metadata.drop_duplicates(
-		subset=[Metadata.PERSONID, Metadata.CATEGORY], keep='first'
+		subset=[Metadata.LABEL, Metadata.CATEGORY], keep='first'
 	)
 	df_metadata_pivot = df_metadata.pivot(
-		index=Metadata.PERSONID,
+		index=Metadata.LABEL,
 		columns=Metadata.CATEGORY,
 		values=[Metadata.IMG_NAME, Metadata.WIDTH, Metadata.HEIGHT],
 	).reset_index()
 	df_metadata_pivot.columns = [
-		Metadata.PERSONID,
+		Metadata.LABEL,
 		Metadata.SELFIE_IMG_NAME,
 		Metadata.IDCARD_IMG_NAME,
 		Metadata.SELFIE_WIDTH,
@@ -60,7 +60,7 @@ def generate(dataset_path: str, metadata_file_path: str):
 
 	df_metadata_split = train_test_split(df_metadata_pivot)
 
-	df_metadata_split.sort_values(by=Metadata.PERSONID, inplace=True)
+	df_metadata_split.sort_values(by=Metadata.LABEL, inplace=True)
 	df_metadata_split.to_csv(metadata_file_path, index=False)
 
 	logger.info(f'Metadata saved to {metadata_file_path}')
@@ -69,12 +69,12 @@ def generate(dataset_path: str, metadata_file_path: str):
 def train_test_split(dataframe: pd.DataFrame) -> pd.DataFrame:
 	logger.info('Generating train and test split...')
 
-	unique_person_ids = dataframe[Metadata.PERSONID].unique()
+	unique_person_ids = dataframe[Metadata.LABEL].unique()
 	np.random.seed(42)  # Ensure reproducibility
 	train_ids = np.random.choice(
 		unique_person_ids, size=int(0.8 * len(unique_person_ids)), replace=False
 	)
-	dataframe[Metadata.SPLIT] = dataframe[Metadata.PERSONID].apply(
+	dataframe[Metadata.SUBSET] = dataframe[Metadata.LABEL].apply(
 		lambda x: DatasetSplit.TRAIN if x in train_ids else DatasetSplit.TEST
 	)
 

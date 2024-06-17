@@ -22,3 +22,8 @@ lint:
 	$(VENV_ACTIVATE);  \
 	python3 -m ruff format .; \
     python3 -m ruff check . --fix; \
+
+
+.PYTHON: siamese
+siamese:
+	python experiments/siamese_experiment.py +architecture=siamese.yaml
