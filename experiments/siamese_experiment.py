@@ -5,10 +5,7 @@ import mlflow
 import numpy as np
 from tqdm import tqdm
 from loguru import logger
-from torch.optim import SGD, Adam
-from skorch import NeuralNetClassifier
-from sklearn.metrics import accuracy_score, make_scorer
-from sklearn.model_selection import LeaveOneOut, GridSearchCV
+from torch.optim import Adam
 from modeling import pipeline
 from visualization.plot import Plotter
 from modeling.train.training import Training, ContrastiveLoss
@@ -72,7 +69,7 @@ def main(config):
         logger.info(f'Number of classes: {n_outputs}')
         logger.info('------------------------------------')
 
-        model = pipeline.SIAMESE_ARCHITECTURE[arch]()
+        model = pipeline.SIAMESE_ARCHITECTURE[arch]().to(device)
 
         # Hyperparameter tuning
         param_grid = {
@@ -88,51 +85,14 @@ def main(config):
         X_train, y_train = [], []
         for batch in tqdm(input_pipeline[DatasetSplit.TRAIN]):
             selfie_images, idcard_images, labels = batch
-            X_train.append((selfie_images, idcard_images))
-            y_train.append(labels)
+            X_train.append((selfie_images.to(device), idcard_images.to(device)))
+            y_train.append(labels.to(device))
 
         # Combine all data and labels
         selfie_images_combined = torch.cat([x[0] for x in X_train], dim=0)
         idcard_images_combined = torch.cat([x[1] for x in X_train], dim=0)
         y_train = torch.cat(y_train, dim=0)
         X_train_combined = torch.cat([selfie_images_combined, idcard_images_combined], dim=1)
-
-
-        logger.info("Hyperparameter Tuning...")
-
-        model_hyperparameters = NeuralNetClassifier(
-            module=model,
-            max_epochs=150,
-            batch_size=10
-        )
-
-        # Specify the cross-validation strategy
-        cv_strategy = LeaveOneOut()
-
-        # Set up GridSearchCV object
-        grid_search = GridSearchCV(
-            estimator=model_hyperparameters,
-            param_grid=param_grid,
-            scoring=make_scorer(accuracy_score),
-            cv=cv_strategy,
-            n_jobs=-1,
-        )
-
-
-        logger.info("Grid Search...")
-        grid_search.fit(X_train_combined, y_train)
-
-        # Get the best hyperparameters and the best model
-        best_params = grid_search.best_params_
-        best_model = grid_search.best_estimator_
-
-        # Set hyperparameters based on the best_params
-        learning_rate = best_params['learning_rate']
-        batch_size = best_params['batch_size']
-
-        # Log best hyperparameters
-        logger.info(f'Best Hyperparameters: {best_params}')
-        mlflow.log_params(best_params)
 
         loss_function = ContrastiveLoss(margin=2.0).to(device)
         optimizer = Adam(
@@ -143,7 +103,7 @@ def main(config):
         logger.info("Starting to train...")
         training = Training(
             input_pipeline=input_pipeline,
-            model=best_model,
+            model=model,
             loss_function=loss_function,
             optimizer=optimizer,
             device=device,

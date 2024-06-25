@@ -1,0 +1,10 @@
+run:
+  name: SiameseNetwork
+  experiment_name: siamese
+
+pipeline:
+  architecture: SiameseNetwork
+  dataset: person_identification
+  epochs: 2
+  batch_size: 128
+  learning_rate: 0.01
